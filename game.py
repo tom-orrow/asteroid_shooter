@@ -6,9 +6,14 @@ import random
 class Ship(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
+        # image
         self.image = pygame.image.load("graphics/ship.png").convert_alpha()
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
         self.mask = pygame.mask.from_surface(self.image)
+
+        # sound
+        self.laser_sound = pygame.mixer.Sound("sounds/laser.ogg")
+        self.laser_sound.set_volume(VOLUME)
 
         self.can_shoot = True
         self.shoot_time = None
@@ -27,6 +32,7 @@ class Ship(pygame.sprite.Sprite):
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
             Laser(self.rect.midtop, laser_group)
+            self.laser_sound.play()
 
     def update(self):
         self.laser_timer()
@@ -45,9 +51,14 @@ class Ship(pygame.sprite.Sprite):
 class Laser(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
+        # image
         self.image = pygame.image.load("graphics/laser.png").convert_alpha()
         self.rect = self.image.get_rect(midbottom=pos)
         self.mask = pygame.mask.from_surface(self.image)
+
+        # sound
+        self.explosion_sound = pygame.mixer.Sound("sounds/explosion.wav")
+        self.explosion_sound.set_volume(VOLUME)
 
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0, -1)
@@ -66,6 +77,7 @@ class Laser(pygame.sprite.Sprite):
             self, meteor_group, True, pygame.sprite.collide_mask
         ):
             self.kill()
+            self.explosion_sound.play()
 
 
 class Meteor(pygame.sprite.Sprite):
@@ -126,6 +138,7 @@ class Score:
 # basic setup
 pygame.init()
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
+VOLUME = 0.1
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Asteroid shooter")
 clock = pygame.time.Clock()
@@ -133,6 +146,9 @@ pygame.mouse.set_visible(False)
 
 # backgroud
 bg_surf = pygame.image.load("graphics/background.png").convert()
+background_music = pygame.mixer.Sound("sounds/music.wav")
+background_music.set_volume(VOLUME)
+background_music.play(loops=-1)
 
 # sprite groups
 spaceship_group = pygame.sprite.GroupSingle()
