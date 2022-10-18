@@ -8,6 +8,8 @@ class Ship(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = pygame.image.load("graphics/ship.png").convert_alpha()
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.can_shoot = True
         self.shoot_time = None
 
@@ -33,7 +35,9 @@ class Ship(pygame.sprite.Sprite):
         self.meteor_collision()
 
     def meteor_collision(self):
-        if pygame.sprite.spritecollide(self, meteor_group, True):
+        if pygame.sprite.spritecollide(
+            self, meteor_group, True, pygame.sprite.collide_mask
+        ):
             pygame.quit()
             sys.exit()
 
@@ -43,6 +47,8 @@ class Laser(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = pygame.image.load("graphics/laser.png").convert_alpha()
         self.rect = self.image.get_rect(midbottom=pos)
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0, -1)
         self.speed = 600
@@ -56,7 +62,9 @@ class Laser(pygame.sprite.Sprite):
             self.kill()
 
     def meteor_collision(self):
-        if pygame.sprite.spritecollide(self, meteor_group, True):
+        if pygame.sprite.spritecollide(
+            self, meteor_group, True, pygame.sprite.collide_mask
+        ):
             self.kill()
 
 
@@ -71,8 +79,9 @@ class Meteor(pygame.sprite.Sprite):
         )
         self.scaled_surface = pygame.transform.scale(meteor_surface, meteor_size)
         self.image = self.scaled_surface
-
         self.rect = self.image.get_rect(center=pos)
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(random.uniform(-0.5, 0.5), 1)
         self.speed = random.randint(400, 600)
@@ -85,6 +94,7 @@ class Meteor(pygame.sprite.Sprite):
         self.rotation += self.rotating_speed * dt
         self.image = pygame.transform.rotozoom(self.scaled_surface, self.rotation, 1)
         self.rect = self.image.get_rect(center=self.rect.center)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         self.pos += self.direction * self.speed * dt
